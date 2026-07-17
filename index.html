@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Academic performance overview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #080814;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════════════════════
+       BACKGROUND ORBS
+    ══════════════════════════════════════ */
+    .orbs { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .orb  { position: absolute; border-radius: 50%; }
+    .orb-1 {
+      width: 55vw; height: 55vw;
+      background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+      opacity: .35; top: -15%; left: -12%;
+      animation: float1 22s infinite ease-in-out;
+    }
+    .orb-2 {
+      width: 42vw; height: 42vw;
+      background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+      opacity: .22; top: 38%; right: -12%;
+      animation: float2 28s infinite ease-in-out reverse;
+    }
+    .orb-3 {
+      width: 48vw; height: 48vw;
+      background: radial-gradient(circle, #0d9488 0%, transparent 70%);
+      opacity: .20; bottom: -12%; left: 18%;
+      animation: float3 24s infinite ease-in-out;
+    }
+
+    @keyframes float1 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      25%     { transform: translate(40px,-60px) scale(1.12); }
+      50%     { transform: translate(-15px,30px) scale(.92); }
+      75%     { transform: translate(25px,15px) scale(1.05); }
+    }
+    @keyframes float2 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33%     { transform: translate(-50px,35px) scale(.94); }
+      66%     { transform: translate(25px,-45px) scale(1.08); }
+    }
+    @keyframes float3 {
+      0%,100% { transform: translate(0,0) scale(1); }
+      30%     { transform: translate(55px,45px) scale(1.12); }
+      70%     { transform: translate(-35px,-30px) scale(.88); }
+    }
+
+    /* ══════════════════════════════════════
+       GLASS UTILITY
+    ══════════════════════════════════════ */
+    .glass {
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid rgba(255,255,255,.13);
+      box-shadow:
+        0 8px 40px rgba(0,0,0,.4),
+        inset 0 1.5px 0 rgba(255,255,255,.18),
+        inset 0 -1px 0 rgba(0,0,0,.1);
+    }
+    .glass-dark {
+      background: rgba(10,8,30,.6);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    /* ══════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════ */
+    .app {
+      position: relative; z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 22px 70px;
+    }
+
+    .academic-summary {
+      border-radius: 24px;
+      padding: 24px;
+      margin-top: 40px;
+      margin-bottom: 24px;
+      animation: fadeIn .5s .08s ease both;
+    }
+    .summary-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255,255,255,.9);
+      margin-bottom: 6px;
+    }
+    .summary-subtitle {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 18px;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .summary-card {
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .summary-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,.92);
+      margin-bottom: 6px;
+    }
+    .summary-meta {
+      font-size: 12px;
+      color: rgba(255,255,255,.58);
+      margin-bottom: 10px;
+    }
+    .summary-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      font-size: 12px;
+      color: rgba(255,255,255,.76);
+    }
+    .summary-list li {
+      padding-left: 8px;
+      border-left: 2px solid rgba(124,58,237,.35);
+      line-height: 1.45;
+    }
+
+    /* ══════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════ */
+    header {
+      display: flex; flex-wrap: wrap;
+      align-items: center; justify-content: space-between;
+      gap: 20px; margin-bottom: 40px;
+      animation: fadeDown .6s cubic-bezier(.22,1,.36,1) both;
+    }
+    .hd-left h1 {
+      font-size: 20px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      color: rgba(255,255,255,.88);
+      letter-spacing: -.01em;
+    }
+    .hd-left p { font-size: 13px; color: rgba(255,255,255,.38); margin-top: 5px; }
+
+    .cgpa-badge {
+      border-radius: 20px; padding: 18px 28px;
+      display: flex; align-items: center; gap: 28px;
+      transition: box-shadow .4s, border-color .4s;
+    }
+    .badge-divider { width: 1px; height: 48px; background: rgba(255,255,255,.1); }
+    .badge-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.38); margin-bottom: 6px;
+    }
+    #cgpaNum {
+      font-size: 44px; font-weight: 800;
+      letter-spacing: -.04em; line-height: 1;
+      transition: color .5s;
+    }
+    .denom { font-size: 14px; color: rgba(255,255,255,.3); margin-left: 5px; }
+    #totalCr { font-size: 22px; font-weight: 600; color: rgba(255,255,255,.88); }
+
+    /* ══════════════════════════════════════
+       TABS
+    ══════════════════════════════════════ */
+    .tabs-wrap {
+      display: flex; overflow-x: auto; gap: 6px;
+      padding-bottom: 6px; margin-bottom: 30px;
+      scrollbar-width: none;
+      animation: fadeIn .5s .12s ease both;
+    }
+    .tabs-wrap::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex-shrink: 0;
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 18px; border-radius: 14px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: rgba(255,255,255,.38);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500;
+      cursor: pointer;
+      transition: color .25s, background .25s, border-color .25s, box-shadow .25s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: rgba(255,255,255,.72); background: rgba(255,255,255,.05); }
+    .tab.active {
+      color: #fff;
+      background: rgba(255,255,255,.09);
+      backdrop-filter: blur(20px) saturate(200%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      border-color: rgba(255,255,255,.14);
+      box-shadow: 0 6px 28px rgba(0,0,0,.35), inset 0 1.5px 0 rgba(255,255,255,.2);
+    }
+    .tab-badge {
+      font-size: 11px; font-weight: 700;
+      padding: 2px 9px; border-radius: 99px;
+      background: rgba(0,0,0,.3);
+      transition: color .3s;
+    }
+    .tab-lock { opacity: .45; flex-shrink: 0; }
+
+    /* ══════════════════════════════════════
+       GRID
+    ══════════════════════════════════════ */
+    .main-grid {
+      display: grid; grid-template-columns: 1fr 310px;
+      gap: 26px; align-items: start;
+    }
+    @media (max-width: 740px) { .main-grid { grid-template-columns: 1fr; } }
+
+    /* ══════════════════════════════════════
+       SEMESTER PANEL
+    ══════════════════════════════════════ */
+    .sem-panel {
+      border-radius: 28px; padding: 34px;
+      animation: slideLeft .4s cubic-bezier(.22,1,.36,1) both;
+    }
+    .sem-panel.locked-panel {
+      border-color: rgba(124,58,237,.25) !important;
+      box-shadow: 0 8px 40px rgba(0,0,0,.4), inset 0 1.5px 0 rgba(255,255,255,.1), 0 0 0 1px rgba(124,58,237,.15);
+    }
+
+    .sem-head {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px; gap: 16px;
+    }
+    .sem-title { font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+    .sem-sub   { font-size: 13px; color: rgba(255,255,255,.38); margin-top: 5px; }
+
+    .sem-gpa-wrap { text-align: right; flex-shrink: 0; }
+    .sem-gpa-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.38); margin-bottom: 5px;
+    }
+    .sem-gpa-num {
+      font-size: 34px; font-weight: 800;
+      letter-spacing: -.03em;
+      transition: color .4s;
+    }
+
+    .lock-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; border-radius: 12px; border: none;
+      cursor: pointer; flex-shrink: 0;
+      transition: background .2s, box-shadow .2s, transform .15s;
+    }
+    .lock-btn:hover { transform: scale(1.08); }
+    .lock-btn.locked {
+      background: rgba(124,58,237,.22);
+      border: 1px solid rgba(124,58,237,.4);
+      box-shadow: 0 0 16px rgba(124,58,237,.25);
+    }
+    .lock-btn.unlocked {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+
+    /* Lock notice */
+    .lock-notice {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 14px; margin-bottom: 20px;
+      background: rgba(124,58,237,.1);
+      border: 1px solid rgba(124,58,237,.22);
+      color: rgba(167,139,250,.9);
+      font-size: 13px;
+      animation: fadeIn .3s ease;
+    }
+
+    /* Course table */
+    .course-header {
+      display: grid;
+      grid-template-columns: 1fr 78px 78px 32px;
+      gap: 10px; padding: 0 14px;
+      margin-bottom: 8px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(255,255,255,.28);
+    }
+    .course-header span:nth-child(2),
+    .course-header span:nth-child(3) { text-align: center; }
+
+    .course-row {
+      display: grid;
+      grid-template-columns: 1fr 78px 78px 32px;
+      gap: 10px; align-items: center;
+      padding: 12px 14px; border-radius: 14px;
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.04);
+      margin-bottom: 7px;
+      opacity: 0;
+      animation: rowIn .35s ease forwards;
+      transition: background .2s, border-color .2s;
+    }
+    .course-row:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.08); }
+
+    .c-name    { font-size: 14px; color: rgba(255,255,255,.82); }
+    .c-credits {
+      text-align: center; font-size: 14px; font-weight: 600;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 9px; padding: 5px 0;
+      color: rgba(255,255,255,.65);
+    }
+    .c-grade {
+      text-align: center; font-size: 13px; font-weight: 800;
+      border-radius: 9px; padding: 5px 0;
+      letter-spacing: .02em;
+    }
+    .c-pts {
+      text-align: center; font-size: 11px;
+      color: rgba(255,255,255,.28); font-weight: 500;
+    }
+
+    .empty-state {
+      text-align: center; padding: 48px 0;
+      color: rgba(255,255,255,.2); font-size: 14px;
+    }
+    .empty-state svg { margin: 0 auto 14px; display: block; opacity: .25; }
+
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar { display: flex; flex-direction: column; gap: 22px; }
+
+    .side-card {
+      border-radius: 22px; padding: 24px;
+      animation: slideRight .4s cubic-bezier(.22,1,.36,1) both;
+    }
+    .side-title {
+      font-size: 14px; font-weight: 600;
+      color: rgba(255,255,255,.78);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 9px;
+    }
+
+    .chart-wrap { height: 185px; }
+
+    .sum-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 14px; border-radius: 13px;
+      background: rgba(255,255,255,.03); margin-bottom: 6px;
+      cursor: pointer;
+      transition: background .2s;
+      border: 1px solid transparent;
+      transition: background .2s, border-color .2s;
+    }
+    .sum-row:hover { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.06); }
+    .sum-row-left { display: flex; align-items: center; gap: 8px; }
+    .sum-name { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.58); }
+    .sum-lock { opacity: .3; }
+    .sum-gpa  { font-size: 13px; font-weight: 700; }
+
+    /* ══════════════════════════════════════
+       PASSCODE MODAL
+    ══════════════════════════════════════ */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 50;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .25s;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      width: 100%; max-width: 340px;
+      border-radius: 28px; padding: 34px;
+      position: relative;
+      transform: scale(.88) translateY(20px);
+      transition: transform .3s cubic-bezier(.22,1,.36,1);
+    }
+    .modal-bg.open .modal { transform: scale(1) translateY(0); }
+
+    .modal.shake {
+      animation: shake .45s ease;
+    }
+    @keyframes shake {
+      0%,100%{transform:translateX(0)}
+      15%{transform:translateX(-10px)}
+      30%{transform:translateX(10px)}
+      45%{transform:translateX(-8px)}
+      60%{transform:translateX(8px)}
+      75%{transform:translateX(-4px)}
+      90%{transform:translateX(4px)}
+    }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px; border-radius: 10px;
+      border: none; background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.4); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.15); color: white; }
+
+    .modal-icon {
+      width: 56px; height: 56px; border-radius: 18px; margin: 0 auto 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(124,58,237,.18);
+      border: 1px solid rgba(124,58,237,.4);
+      box-shadow: 0 0 24px rgba(124,58,237,.3);
+    }
+    .modal h2 { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .modal p  { font-size: 13px; color: rgba(255,255,255,.45); text-align: center; margin-bottom: 22px; }
+
+    #passcodeInput {
+      width: 100%; border-radius: 14px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,.07);
+      border: 1.5px solid rgba(255,255,255,.12);
+      color: white; font-family: 'Inter', sans-serif;
+      font-size: 18px; font-weight: 600;
+      text-align: center; letter-spacing: .25em;
+      outline: none; margin-bottom: 10px;
+      transition: border-color .2s, background .2s;
+    }
+    #passcodeInput:focus { border-color: rgba(124,58,237,.6); background: rgba(255,255,255,.1); }
+    #passcodeInput.error { border-color: rgba(248,113,113,.7); }
+
+    .modal-err {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: #f87171; margin-bottom: 12px;
+      justify-content: center; min-height: 20px;
+    }
+
+    .modal-btn {
+      width: 100%; padding: 14px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: linear-gradient(135deg, rgba(124,58,237,.85), rgba(37,99,235,.85));
+      color: white; font-family: 'Inter', sans-serif;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(124,58,237,.35);
+      transition: opacity .2s, transform .15s;
+    }
+    .modal-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .modal-btn:active { transform: translateY(0); }
+
+    /* ══════════════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════════════ */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes slideLeft {
+      from { opacity: 0; transform: translateX(-20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes rowIn {
+      from { opacity: 0; transform: translateY(10px) scale(.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes numPop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+    .num-pop { animation: numPop .35s cubic-bezier(.22,1,.36,1); }
+  </style>
+</head>
+<body>
+
+<!-- Animated background -->
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Passcode modal -->
+<div class="modal-bg" id="modalBg" onclick="handleBgClick(event)">
+  <div class="modal glass-dark" id="modal">
+    <button class="modal-close" onclick="closeModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2 id="modalTitle">Unlock Semester</h2>
+    <p>Enter your passcode to edit</p>
+    <input id="passcodeInput" type="password" inputmode="numeric" placeholder="••••" maxlength="10"
+      onkeydown="if(event.key==='Enter') submitPasscode()" oninput="clearErr()" />
+    <div class="modal-err" id="modalErr"></div>
+    <button class="modal-btn" onclick="submitPasscode()">Unlock</button>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app">
+  <header>
+    <div class="hd-left">
+      <h1>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Academic performance overview
+      </h1>
+      <p>Liyana Gamage Ramida Penuka</p>
+    </div>
+    <div class="cgpa-badge glass" id="cgpaBadge">
+      <div>
+        <div class="badge-label">Cumulative GPA</div>
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span id="cgpaNum">—</span>
+          <span class="denom">/ 4.00</span>
+        </div>
+      </div>
+      <div class="badge-divider"></div>
+      <div>
+        <div class="badge-label">Total Credits</div>
+        <div id="totalCr">—</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs-wrap" id="tabs"></div>
+
+  <div class="main-grid">
+    <div class="sem-panel glass" id="panel"></div>
+    <div class="sidebar">
+      <div class="side-card glass">
+        <div class="side-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+          Performance Trend
+        </div>
+        <div class="chart-wrap"><canvas id="chart"></canvas></div>
+      </div>
+      <div class="side-card glass">
+        <div class="side-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          All Semesters
+        </div>
+        <div id="summary"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="academic-summary glass">
+    <div class="summary-title">🤖 AI Performance Summary</div>
+    <div class="summary-subtitle">Based on his current GPA trend and subject results, here is a clear view of his academic performance.</div>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>How he performed</h3>
+        <div class="summary-meta">Steady improvement with strong consistency</div>
+        <ul class="summary-list">
+          <li>His GPA improved from 2.97 in Semester 1 to 3.59 in Semester 2 and stayed at 3.59 in Semester 3.</li>
+          <li>This shows a strong upward trend and better academic control over time.</li>
+          <li>He performed especially well in subjects such as OR, Geo, System Engineering, Data Science, OE, and SC.</li>
+        </ul>
+      </div>
+      <div class="summary-card">
+        <h3>Strengths</h3>
+        <div class="summary-meta">His best academic patterns</div>
+        <ul class="summary-list">
+          <li>Consistent A and A- grades in several major subjects show strong understanding and reliable performance.</li>
+          <li>He handles core modules well and maintains a solid academic standard across multiple semesters.</li>
+          <li>His results suggest good adaptability, discipline, and steady learning progress.</li>
+        </ul>
+      </div>
+      <div class="summary-card">
+        <h3>Areas to improve</h3>
+        <div class="summary-meta">Focus points for his next step</div>
+        <ul class="summary-list">
+          <li>Maths, Programming, Fluid, and Differential appear to be his main challenge areas based on the lower grades.</li>
+          <li>These subjects may need more revision, practice, and structured study habits.</li>
+          <li>With his current momentum, improving these areas can push his GPA even higher.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ================================================================
+   ✏️  YOUR DATA — EDIT HERE
+   ================================================================
+   Fill in your courses for each semester.
+
+   Each course:
+     name    — module/course name (text)
+     credits — credit hours (number)
+     grade   — A+  A  A-  B+  B  B-  C+  C  C-  D+  D  D-  F
+
+   Leave  courses: []  for semesters not yet completed.
+   ================================================================ */
+
+const SEMESTERS = [
+  {
+    name: "Semester 1",
+    courses: [
+      { name: "MIT", credits: 3, grade: "A"  },
+      { name: "FOTL", credits: 3, grade: "A-" },
+      { name: "Maths", credits: 3, grade: "B-" },
+      { name: "Electrical", credits: 2, grade: "B-"  },
+      { name: "Programming", credits: 3, grade: "C+" },
+      { name: "Fluid", credits: 2, grade: "C"  },
+    ]
+  },
+  {
+    name: "Semester 2",
+    courses: [
+      { name: "OR", credits: 3, grade: "A"  },
+      { name: "Geo", credits: 3, grade: "A"  },
+      { name: "System Engineering", credits: 3, grade: "A"  },
+      { name: "Visual Programming", credits: 2, grade: "A"  },
+      { name: "English", credits: 2, grade: "A"  },
+      { name: "Yoga", credits: 2, grade: "A-" },
+      { name: "Electronic", credits: 3, grade: "B+" },
+      { name: "Maths", credits: 3, grade: "C"  },
+    ]
+  },
+  {
+    name: "Semester 3",
+    courses: [
+      { name: "Data Science", credits: 4, grade: "A"  },
+      { name: "OE", credits: 4, grade: "A"  },
+      { name: "SC", credits: 3, grade: "A"  },
+      { name: "Economic", credits: 3, grade: "A-" },
+      { name: "QM", credits: 4, grade: "B+" },
+      { name: "GLS", credits: 2, grade: "B+" },
+      { name: "Differential", credits: 2, grade: "C"  },
+    ]
+  },
+  { name: "Semester 4", courses: [] },
+  { name: "Semester 5", courses: [] },
+  { name: "Semester 6", courses: [] },
+  { name: "Semester 7", courses: [] },
+  { name: "Semester 8", courses: [] },
+];
+
+/* ================================================================
+   ── ENGINE — do not edit below ──
+   ================================================================ */
+
+const GRADE = {
+  "A+":4.0,"A":4.0,"A-":3.7,
+  "B+":3.3,"B":3.0,"B-":2.7,
+  "C+":2.3,"C":2.0,"C-":1.7,
+  "D+":1.3,"D":1.0,"D-":0.7,"F":0.0
+};
+const PASSCODE = "2508";
+
+/* Which semesters are locked (by index) */
+const locked = new Set();
+
+function calcSem(courses) {
+  let pts = 0, cr = 0;
+  for (const c of courses) {
+    if (c.name && c.name.trim() && GRADE[c.grade] !== undefined && c.credits > 0) {
+      pts += GRADE[c.grade] * c.credits;
+      cr  += c.credits;
+    }
+  }
+  return { gpa: cr > 0 ? pts / cr : 0, credits: cr };
+}
+
+function calcCGPA() {
+  let pts = 0, cr = 0;
+  for (const s of SEMESTERS) {
+    const r = calcSem(s.courses);
+    if (r.credits > 0) { pts += r.gpa * r.credits; cr += r.credits; }
+  }
+  return { gpa: cr > 0 ? pts / cr : 0, credits: cr };
+}
+
+function gpaCol(gpa) {
+  if (gpa >= 3.7) return "#34d399";
+  if (gpa >= 3.0) return "#60a5fa";
+  if (gpa >= 2.5) return "#fbbf24";
+  if (gpa >  0)   return "#f87171";
+  return "rgba(255,255,255,.2)";
+}
+
+/* ── State ── */
+let active = 2;
+let chartObj = null;
+
+/* ── Animated number counter ── */
+function animateNum(el, target, decimals = 2, duration = 600) {
+  const start = parseFloat(el.dataset.val || "0");
+  el.dataset.val = target;
+  const startTime = performance.now();
+  const step = (now) => {
+    const p = Math.min((now - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    const val = start + (target - start) * ease;
+    el.textContent = val.toFixed(decimals);
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target.toFixed(decimals);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ── Header ── */
+function renderHeader() {
+  const { gpa, credits } = calcCGPA();
+  const hasData = credits > 0;
+  const col = gpaCol(gpa);
+
+  const numEl = document.getElementById("cgpaNum");
+  if (hasData) {
+    animateNum(numEl, gpa, 2, 700);
+    numEl.style.color = col;
+    numEl.classList.remove("num-pop");
+    void numEl.offsetWidth;
+    numEl.classList.add("num-pop");
+  } else {
+    numEl.textContent = "—";
+    numEl.style.color = "rgba(255,255,255,0.3)";
+  }
+
+  document.getElementById("totalCr").textContent = hasData ? credits : "—";
+
+  const badge = document.getElementById("cgpaBadge");
+  badge.style.borderColor = hasData ? col + "50" : "";
+  badge.style.boxShadow   = hasData
+    ? `0 8px 40px rgba(0,0,0,.4), inset 0 1.5px 0 rgba(255,255,255,.18), 0 0 30px ${col}28`
+    : "";
+}
+
+/* ── Tabs ── */
+function renderTabs() {
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = SEMESTERS.map((s, i) => {
+    const { gpa, credits } = calcSem(s.courses);
+    const col = gpaCol(gpa);
+    const hasData = credits > 0;
+    const isLocked = locked.has(i);
+    const lockIcon = isLocked
+      ? `<span class="tab-lock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>`
+      : `<span class="tab-lock" style="opacity:.12"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="8" y1="11" x2="8" y2="7"/></svg></span>`;
+    return `
+      <button class="tab${i===active?" active":""}" onclick="go(${i})">
+        ${s.name}
+        ${hasData ? `<span class="tab-badge" style="color:${col}">${gpa.toFixed(2)}</span>` : ""}
+        ${lockIcon}
+      </button>`;
+  }).join("");
+
+  const btn = wrap.children[active];
+  if (btn) {
+    const left = btn.offsetLeft - wrap.offsetWidth / 2 + btn.offsetWidth / 2;
+    wrap.scrollTo({ left, behavior: "smooth" });
+  }
+}
+
+/* ── Semester panel ── */
+function renderPanel() {
+  const sem = SEMESTERS[active];
+  const { gpa, credits } = calcSem(sem.courses);
+  const col = gpaCol(gpa);
+  const hasData = sem.courses.length > 0;
+  const isLocked = locked.has(active);
+
+  const panel = document.getElementById("panel");
+  panel.className = "sem-panel glass" + (isLocked ? " locked-panel" : "");
+
+  /* Animate in fresh */
+  panel.style.animation = "none";
+  void panel.offsetWidth;
+  panel.style.animation = "";
+
+  const lockBtn = `
+    <button class="lock-btn ${isLocked ? "locked" : "unlocked"}"
+      onclick="${isLocked ? "openModal(" + active + ")" : "lockSem(" + active + ")"}"
+      title="${isLocked ? "Click to unlock" : "Click to lock"}">
+      ${isLocked
+        ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+        : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="8" y1="11" x2="8" y2="7"/></svg>`
+      }
+    </button>`;
+
+  const lockNotice = isLocked ? `
+    <div class="lock-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      This semester is locked. Click the lock icon to enter your passcode and edit.
+    </div>` : "";
+
+  const rows = hasData
+    ? sem.courses.map((c, idx) => {
+        const gradeVal = GRADE[c.grade] ?? 0;
+        const gc = gpaCol(gradeVal);
+        const pts = (gradeVal * c.credits).toFixed(1);
+        return `
+          <div class="course-row" style="animation-delay:${idx * 55}ms">
+            <div class="c-name">${c.name}</div>
+            <div class="c-credits">${c.credits}</div>
+            <div class="c-grade" style="color:${gc};background:${gc}1e">${c.grade}</div>
+            <div class="c-pts">${pts}</div>
+          </div>`;
+      }).join("")
+    : `<div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        No courses yet — add them in the code above
+       </div>`;
+
+  panel.innerHTML = `
+    <div class="sem-head">
+      <div>
+        <div class="sem-title">${sem.name}</div>
+        <div class="sem-sub">${hasData
+          ? sem.courses.length + " course" + (sem.courses.length !== 1 ? "s" : "") + " &nbsp;·&nbsp; " + credits + " credits"
+          : "Not completed yet"}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="sem-gpa-wrap">
+          <div class="sem-gpa-label">Semester GPA</div>
+          <div class="sem-gpa-num" style="color:${hasData ? col : "rgba(255,255,255,.2)"}">${hasData ? gpa.toFixed(2) : "—"}</div>
+        </div>
+        ${lockBtn}
+      </div>
+    </div>
+    ${lockNotice}
+    ${hasData ? `
+    <div class="course-header">
+      <span>Module / Course</span>
+      <span>Credits</span>
+      <span>Grade</span>
+      <span style="text-align:center">Pts</span>
+    </div>` : ""}
+    ${rows}`;
+}
+
+/* ── Summary list ── */
+function renderSummary() {
+  document.getElementById("summary").innerHTML = SEMESTERS.map((s, i) => {
+    const { gpa, credits } = calcSem(s.courses);
+    const hasData = credits > 0;
+    const col = gpaCol(gpa);
+    const isLocked = locked.has(i);
+    const lockIcon = isLocked
+      ? `<svg class="sum-lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+      : "";
+    return `
+      <div class="sum-row" onclick="go(${i})">
+        <div class="sum-row-left">
+          <span class="sum-name">${s.name}</span>
+          ${lockIcon}
+        </div>
+        <span class="sum-gpa" style="color:${col}">${hasData ? gpa.toFixed(2) : "—"}</span>
+      </div>`;
+  }).join("");
+}
+
+/* ── Chart ── */
+function renderChart() {
+  const labels = SEMESTERS.map((_, i) => `S${i+1}`);
+  const values = SEMESTERS.map(s => {
+    const { gpa, credits } = calcSem(s.courses);
+    return credits > 0 ? parseFloat(gpa.toFixed(2)) : 0;
+  });
+  const colors = SEMESTERS.map(s => {
+    const { gpa, credits } = calcSem(s.courses);
+    return credits > 0 ? gpaCol(gpa) : "rgba(255,255,255,0.07)";
+  });
+
+  if (chartObj) chartObj.destroy();
+  chartObj = new Chart(document.getElementById("chart").getContext("2d"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: colors,
+        borderRadius: 7,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 700, easing: "easeOutQuart" },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "rgba(10,8,28,.96)",
+          borderColor: "rgba(255,255,255,.1)",
+          borderWidth: 1,
+          titleColor: "rgba(255,255,255,.5)",
+          bodyColor: "#fff",
+          padding: 12,
+          cornerRadius: 12,
+          callbacks: {
+            label: ctx => {
+              const { credits } = calcSem(SEMESTERS[ctx.dataIndex].courses);
+              return credits > 0 ? "GPA: " + ctx.parsed.y.toFixed(2) : "No data yet";
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: "rgba(255,255,255,.35)", font: { size: 11 } },
+          grid: { display: false }, border: { display: false },
+        },
+        y: {
+          min: 0, max: 4,
+          ticks: { color: "rgba(255,255,255,.35)", font: { size: 11 }, stepSize: 1 },
+          grid: { color: "rgba(255,255,255,.05)" }, border: { display: false },
+        }
+      }
+    }
+  });
+}
+
+/* ── Lock / Unlock ── */
+function lockSem(idx) {
+  locked.add(idx);
+  render();
+}
+
+let modalTarget = -1;
+
+function openModal(idx) {
+  modalTarget = idx;
+  document.getElementById("modalTitle").textContent = "Unlock " + SEMESTERS[idx].name;
+  document.getElementById("passcodeInput").value = "";
+  document.getElementById("modalErr").innerHTML = "";
+  document.getElementById("passcodeInput").classList.remove("error");
+  document.getElementById("modalBg").classList.add("open");
+  setTimeout(() => document.getElementById("passcodeInput").focus(), 100);
+}
+
+function closeModal() {
+  document.getElementById("modalBg").classList.remove("open");
+}
+
+function handleBgClick(e) {
+  if (e.target === document.getElementById("modalBg")) closeModal();
+}
+
+function clearErr() {
+  document.getElementById("modalErr").innerHTML = "";
+  document.getElementById("passcodeInput").classList.remove("error");
+}
+
+function submitPasscode() {
+  const val = document.getElementById("passcodeInput").value;
+  if (val === PASSCODE) {
+    locked.delete(modalTarget);
+    closeModal();
+    render();
+  } else {
+    document.getElementById("passcodeInput").classList.add("error");
+    document.getElementById("passcodeInput").value = "";
+    document.getElementById("modalErr").innerHTML =
+      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+       Incorrect passcode. Try again.`;
+    const modal = document.getElementById("modal");
+    modal.classList.remove("shake");
+    void modal.offsetWidth;
+    modal.classList.add("shake");
+    setTimeout(() => document.getElementById("passcodeInput").focus(), 50);
+  }
+}
+
+/* ── Navigate ── */
+function go(idx) {
+  active = idx;
+  renderTabs();
+  renderPanel();
+}
+
+/* ── Full render ── */
+function render() {
+  renderHeader();
+  renderTabs();
+  renderPanel();
+  renderSummary();
+  renderChart();
+}
+
+render();
+</script>
+</body>
+</html>
