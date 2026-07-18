@@ -756,33 +756,33 @@
 
   <section class="academic-summary glass">
     <div class="summary-title">🤖 AI Performance Summary</div>
-    <div class="summary-subtitle">Based on his current GPA trend and subject results, here is a clear view of his academic performance.</div>
+    <div class="summary-subtitle">Based on the latest GPA trend and module results, here is a clear view of academic performance.</div>
     <div class="summary-grid">
       <div class="summary-card">
-        <h3>How he performed</h3>
-        <div class="summary-meta">Steady improvement with strong consistency</div>
+        <h3>How performance has progressed</h3>
+        <div class="summary-meta">A strong upward trend across the first four semesters</div>
         <ul class="summary-list">
-          <li>His GPA improved from 2.97 in Semester 1 to 3.59 in Semester 2 and stayed at 3.59 in Semester 3.</li>
-          <li>This shows a strong upward trend and better academic control over time.</li>
-          <li>He performed especially well in subjects such as OR, Geo, System Engineering, Data Science, OE, and SC.</li>
+          <li>GPA improved from 3.03 in Semester 1 to 3.54 in Semester 2, 3.59 in Semester 3, and 3.85 in Semester 4.</li>
+          <li>This reflects steady growth, stronger consistency, and excellent academic control over time.</li>
+          <li>Core subjects such as transport systems, operations research, systems engineering, data science, and supply chain modules were especially strong.</li>
         </ul>
       </div>
       <div class="summary-card">
         <h3>Strengths</h3>
-        <div class="summary-meta">His best academic patterns</div>
+        <div class="summary-meta">The strongest academic patterns</div>
         <ul class="summary-list">
-          <li>Consistent A and A- grades in several major subjects show strong understanding and reliable performance.</li>
-          <li>He handles core modules well and maintains a solid academic standard across multiple semesters.</li>
-          <li>His results suggest good adaptability, discipline, and steady learning progress.</li>
+          <li>Consistent A and A- grades in major transport, logistics, and operations modules show strong understanding and reliable performance.</li>
+          <li>Several results in the higher-grade range suggest good analytical ability, discipline, and adaptability.</li>
+          <li>The overall pattern indicates solid academic maturity and a healthy ability to perform well under demanding coursework.</li>
         </ul>
       </div>
       <div class="summary-card">
         <h3>Areas to improve</h3>
-        <div class="summary-meta">Focus points for his next step</div>
+        <div class="summary-meta">Focus points for the next step</div>
         <ul class="summary-list">
-          <li>Maths, Programming, Fluid, and Differential appear to be his main challenge areas based on the lower grades.</li>
-          <li>These subjects may need more revision, practice, and structured study habits.</li>
-          <li>With his current momentum, improving these areas can push his GPA even higher.</li>
+          <li>Fluid Mechanics, Programming Fundamentals, Mathematics, and Differential Equations remain the main challenge areas based on the lower grades.</li>
+          <li>These subjects would benefit from extra revision, more practice, and structured study routines.</li>
+          <li>With the current momentum, improving these areas can push the GPA even higher in future semesters.</li>
         </ul>
       </div>
     </div>
@@ -807,40 +807,52 @@ const SEMESTERS = [
   {
     name: "Semester 1",
     courses: [
-      { name: "MIT", credits: 3, grade: "A"  },
-      { name: "FOTL", credits: 3, grade: "A-" },
-      { name: "Maths", credits: 3, grade: "B-" },
-      { name: "Electrical", credits: 2, grade: "B-"  },
-      { name: "Programming", credits: 3, grade: "C+" },
-      { name: "Fluid", credits: 2, grade: "C"  },
+      { name: "CE1023 - Fluid Mechanics", credits: 2, grade: "C" },
+      { name: "CS1033 - Programming Fundamentals", credits: 3, grade: "C+" },
+      { name: "EE1040 - Electrical Fundamentals", credits: 2, grade: "B-" },
+      { name: "LT1010 - Fundamentals of Transport & Logistics System", credits: 3, grade: "A-" },
+      { name: "LT1020 - Mechanics in Transport", credits: 3, grade: "A" },
+      { name: "MA1014 - Mathematics", credits: 3, grade: "B-" },
     ]
   },
   {
     name: "Semester 2",
     courses: [
-      { name: "OR", credits: 3, grade: "A"  },
-      { name: "Geo", credits: 3, grade: "A"  },
-      { name: "System Engineering", credits: 3, grade: "A"  },
-      { name: "Visual Programming", credits: 2, grade: "A"  },
-      { name: "English", credits: 2, grade: "A"  },
-      { name: "Yoga", credits: 2, grade: "A-" },
-      { name: "Electronic", credits: 3, grade: "B+" },
-      { name: "Maths", credits: 3, grade: "C"  },
+      { name: "CS2813 - Visual Programming", credits: 2, grade: "A" },
+      { name: "EL1030 - Language Skills Enhancement", credits: 2, grade: "A+" },
+      { name: "EN1803 - Basic Electronics for Engineering Applications", credits: 3, grade: "B+" },
+      { name: "HM2330 - Yoga Practice", credits: 2, grade: "A-" },
+      { name: "LT1030 - Operations Research for Transport and Logistics Systems", credits: 3, grade: "A" },
+      { name: "LT1040 - Geo-Spatial Analysis", credits: 3, grade: "A" },
+      { name: "LT1050 - Systems Engineering", credits: 3, grade: "A" },
+      { name: "MA1024 - Methods of Mathematics", credits: 3, grade: "C-" },
     ]
   },
   {
     name: "Semester 3",
     courses: [
-      { name: "Data Science", credits: 4, grade: "A"  },
-      { name: "OE", credits: 4, grade: "A"  },
-      { name: "SC", credits: 3, grade: "A"  },
-      { name: "Economic", credits: 3, grade: "A-" },
-      { name: "QM", credits: 4, grade: "B+" },
-      { name: "GLS", credits: 2, grade: "B+" },
-      { name: "Differential", credits: 2, grade: "C"  },
+      { name: "LT1900 - Essential Skills Development", credits: 2, grade: "A+", nonGpa: true },
+      { name: "LT2010 - Data Science for Transport and Logistics Systems", credits: 4, grade: "A" },
+      { name: "LT2020 - Engineering Economics", credits: 3, grade: "A-" },
+      { name: "LT2030 - Operations Engineering", credits: 4, grade: "A" },
+      { name: "LT2040 - Quantitative Methods for Transport and Logistics Systems", credits: 4, grade: "B+" },
+      { name: "LT2050 - Principles of Supply Chain Engineering", credits: 3, grade: "A" },
+      { name: "LT2060 - Global Logistics Systems", credits: 2, grade: "B+" },
+      { name: "MA2014 - Differential Equations", credits: 2, grade: "C" },
     ]
   },
-  { name: "Semester 4", courses: [] },
+  {
+    name: "Semester 4",
+    courses: [
+      { name: "LT2070 - Sustainable Design of Transport and Logistics Systems", credits: 2, grade: "A", gradeLabel: "A" },
+      { name: "LT2080 - Land Transport Systems", credits: 3, grade: "A", gradeLabel: "A" },
+      { name: "LT2090 - Maritime Transport Systems", credits: 3, grade: "A-", gradeLabel: "A-" },
+      { name: "LT2100 - Air Transport Systems", credits: 3, grade: "B+", gradeLabel: "B+" },
+      { name: "LT2110 - Transport Demand Modelling and Simulation", credits: 3, grade: "A", gradeLabel: "A" },
+      { name: "LT2120 - Supply Chain Analytics", credits: 3, grade: "A", gradeLabel: "A" },
+      { name: "LT2230 - Advanced Operations Research in Transport and Logistics Systems", credits: 3, grade: "A+", gradeLabel: "A+" },
+    ]
+  },
   { name: "Semester 5", courses: [] },
   { name: "Semester 6", courses: [] },
   { name: "Semester 7", courses: [] },
@@ -862,12 +874,51 @@ const PASSCODE = "2508";
 /* Which semesters are locked (by index) */
 const locked = new Set();
 
+function getCourseGrade(c) {
+  if (!c || typeof c !== "object") return null;
+  if (c.nonGpa || c.pending) return null;
+  if (typeof c.grade !== "string") return null;
+
+  const raw = c.grade.trim();
+  const normalized = raw.replace(/\s*\([^)]*\)\s*/g, "").trim();
+  return GRADE[normalized] !== undefined ? normalized : null;
+}
+
+function sortCoursesByGrade(courses) {
+  const gradeRank = {
+    "A+": 8,
+    "A": 7,
+    "A-": 6,
+    "B+": 5,
+    "B": 4,
+    "B-": 3,
+    "C+": 2,
+    "C": 1,
+    "C-": 0,
+    "D+": -1,
+    "D": -2,
+    "D-": -3,
+    "F": -4,
+    "Pending": -5
+  };
+
+  return [...courses].sort((a, b) => {
+    const aRank = gradeRank[getCourseGrade(a)] ?? gradeRank[a.grade] ?? -99;
+    const bRank = gradeRank[getCourseGrade(b)] ?? gradeRank[b.grade] ?? -99;
+    return bRank - aRank;
+  });
+}
+
 function calcSem(courses) {
   let pts = 0, cr = 0;
   for (const c of courses) {
-    if (c.name && c.name.trim() && GRADE[c.grade] !== undefined && c.credits > 0) {
-      pts += GRADE[c.grade] * c.credits;
-      cr  += c.credits;
+    if (!c || !c.name || !c.name.trim()) continue;
+    if (c.nonGpa || c.pending) continue;
+
+    const grade = getCourseGrade(c);
+    if (grade && c.credits > 0) {
+      pts += GRADE[grade] * c.credits;
+      cr += c.credits;
     }
   }
   return { gpa: cr > 0 ? pts / cr : 0, credits: cr };
@@ -891,7 +942,7 @@ function gpaCol(gpa) {
 }
 
 /* ── State ── */
-let active = 2;
+let active = 3;
 let chartObj = null;
 
 /* ── Animated number counter ── */
@@ -996,15 +1047,17 @@ function renderPanel() {
     </div>` : "";
 
   const rows = hasData
-    ? sem.courses.map((c, idx) => {
-        const gradeVal = GRADE[c.grade] ?? 0;
+    ? sortCoursesByGrade(sem.courses).map((c, idx) => {
+        const grade = getCourseGrade(c);
+        const gradeVal = grade ? GRADE[grade] : 0;
         const gc = gpaCol(gradeVal);
-        const pts = (gradeVal * c.credits).toFixed(1);
+        const pts = grade ? (gradeVal * c.credits).toFixed(1) : "—";
+        const displayGrade = c.gradeLabel || c.grade;
         return `
           <div class="course-row" style="animation-delay:${idx * 55}ms">
             <div class="c-name">${c.name}</div>
             <div class="c-credits">${c.credits}</div>
-            <div class="c-grade" style="color:${gc};background:${gc}1e">${c.grade}</div>
+            <div class="c-grade" style="color:${gc};background:${gc}1e">${displayGrade}</div>
             <div class="c-pts">${pts}</div>
           </div>`;
       }).join("")
